@@ -71,9 +71,27 @@ elif grep -qi 'gentoo' /etc/os-release; then
     fi
 
 else
+    echo "Python virtualenv not installed."
     exit 1
 fi
 
+if -z ls /usr/lib64/libgssapi_krb5.so.2; then
+    if grep -qi 'ubuntu\|debian' /etc/os-release; then
+        sudo apt update && sudo apt install libgssapi-krb5-2
+
+    elif grep -qi 'arch\|manjaro' /etc/os-release; then
+        sudo pacman -Sy --noconfirm krb5
+
+    elif grep -qi 'fedora' /etc/os-release; then
+        sudo dnf install -y krb5-libs
+
+    elif grep -qi 'gentoo' /etc/os-release; then
+        sudo emerge dev-python/gssapi
+
+    else
+        echo "GSS API not installed." && exit 1
+    fi
+fi
 cd ..
 python3 -m venv ".venv"
 source .venv/bin/activate
